@@ -1,0 +1,56 @@
+###################### polyelectrolyte complexation ######################
+clear
+
+#Initialization
+#------------------------------------
+units				lj
+dimension			3
+atom_style			full
+boundary			p p p
+
+#Atom Definition
+#-------------------------------------
+read_data			data.complexation
+
+#Force definition
+#----------------------------------------------
+#Bond definition
+bond_style			harmonic
+bond_coeff			1 5000 1 
+#Pair definition
+special_bonds	lj 0 1 1  coul 1 1 1
+pair_style		 lj/cut 1.12
+pair_modify 		 shift yes
+pair_coeff	1 1 1 1 1.12 
+pair_coeff	1 2 1 1 1.12 
+pair_coeff	1 3 1 0.8 0.896 
+pair_coeff	1 4 1 0.8 0.896 
+pair_coeff	2 2 1 1 1.12 
+pair_coeff	2 3 1 0.8 0.896 
+pair_coeff	2 4 1 0.8 0.896 
+pair_coeff	3 3 1 0.6 0.672 
+pair_coeff	3 4 1 0.6 0.672
+pair_coeff	4 4 1 0.6 0.672 
+
+neigh_modify		one 10000 
+
+#Timestep etc
+#--------------------------------------------
+minimize 0.0 1.0e-8 1000 100000
+timestep		0.001
+run_style		verlet
+velocity		all	create	5 8841
+
+#Fix
+#---------------------------------------
+fix 1 all nve
+fix 2 all langevin 3	3	100  1605
+
+#Dump
+#------------------------------------------------
+thermo_style		 custom step temp press pe evdwl ecoul ebond ke etotal enthalpy
+thermo 	10000
+dump	3 all custom 10000 dump.lammpstrj id mol type q xu yu zu
+run		2000000
+write_restart restart.equil
+#--------------End of Input file ------------------

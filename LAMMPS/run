@@ -1,0 +1,28 @@
+#!/bin/bash
+
+x=1
+xx=1
+while [ $x -le $xx ]
+
+do
+        
+        rm -r  run.$x   
+        mkdir run.$x
+	cd run.$x
+	cp ../script.sh .
+	cp ../lmp .
+	cp ../in.complexation .
+	cp ../data.complexation .
+	ls
+	a0=$(date +%N)
+	a=${a0:(-4)}
+	b0=$(date +%N)
+	b=${b0:(-4)}
+	sed -i '42s/.*/velocity		all	create	3 '$a'/' in.complexation
+	sed -i '47s/.*/fix 2 all langevin 3	3	100  '$b'/' in.complexation
+        sbatch script.sh
+        cd ..
+    echo $x
+    x=$(( $x + 1 ))
+done
+
